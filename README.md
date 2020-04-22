@@ -8,6 +8,8 @@
   - Debug mode can be toggled from the script to display progress as it solves (Decreases solving time)
   - Yellow: Tiles the algorithm knows exist but has not yet explored
   - Pink: Tiles the algorithm knows exist and has explored
+  - Pressing the "r" key will reset the board, instead of having to close and oepn again, can happen at any time
+  - Pressing the "g" key will generate a random start and finish position and then attempt to solve it a second later
 
 ### Installation
 Requires Python3 to run.
