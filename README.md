@@ -19,5 +19,6 @@ $ pip install pygame
 ### Evidence
 Using Debug
 ![Using Debug Gif](evidence/debug_evidence.gif)
+
 Without debug
 ![With no debug Gif](evidence/no_debug_evidence.gif)
