@@ -1,6 +1,7 @@
 import pygame
 import time
 from pygame import draw
+from random import randint
 
 
 class Display_window():
@@ -14,7 +15,7 @@ class Display_window():
         # When configuring dimension sizes
         # box_dimension should be a factor of border_length
         self.border_length = 900
-        self.box_dimension = 60
+        self.box_dimension = 30
         self.window_dimension = (self.border_length, self.border_length)
         # Debug used to visualize squares as path finding performs
         # will be considerably slower to solve however
@@ -33,6 +34,7 @@ class Display_window():
         # there is a new frame and colors are drawn
         self.Colors = {
             "white": (255, 255, 255),
+            "black": (0, 0, 0),
             "red": (255, 0, 0),
             "green": (0, 255, 0),
             "grey": (128, 128, 128),
@@ -148,21 +150,32 @@ class Display_window():
                 if event.type == pygame.KEYDOWN:
                     # User can only attemp to solve once there is a start and finish tile on screen
                     if event.key == ord(" ") and self.start_tile and self.finish_tile:
-                        self.ready = True
-                        self.f_cost_pos()
-                        # Sets the current position to be the start position as that's where to start searching from
-                        self.current_position = [self.start_tile_pos, self.calculate_f_cost(self.start_tile_pos), True, self.start_tile_pos]
-                        self.f_grid[self.start_tile_pos[0]][self.start_tile_pos[1]] = self.current_position
-                        self.check_neighbour_loop()
-                        # While the problem can continue to be solvable, keep trying to find a solution
-                        if not self.unsolvable:
-                            self.produce_solved_solution()
-                            self.finish_grid()
+                        self.solve_problem()
+                    elif event.key == ord("r"):
+                        self.reset_board()
+                    elif event.key == ord("g"):
+                        self.generate_board()
+                        self.draw_grid()
+                        pygame.display.update()
+                        time.sleep(1)
+                        self.solve_problem()
             self.draw_grid()
             pygame.display.update()
             self.clock.tick(60)
         pygame.quit()
         quit()
+
+    def solve_problem(self):
+        self.ready = True
+        self.f_cost_pos()
+        # Sets the current position to be the start position as that's where to start searching from
+        self.current_position = [self.start_tile_pos, self.calculate_f_cost(self.start_tile_pos), True, self.start_tile_pos]
+        self.f_grid[self.start_tile_pos[0]][self.start_tile_pos[1]] = self.current_position
+        self.check_neighbour_loop()
+        # While the problem can continue to be solvable, keep trying to find a solution
+        if not self.unsolvable:
+            self.produce_solved_solution()
+            self.finish_grid()
 
     def f_cost_pos(self):
         # A grid for storing index, f costs, open / closed and last index
@@ -255,5 +268,49 @@ class Display_window():
                         break
         return slot_open
 
+    def reset_board(self):
+        self.f_cost_pos()
+        self.create_grid()
+        self.start_tile = False
+        self.finish_tile = False
+        self.wall_tile = True
+        # When configuring dimension sizes
+        # box_dimension should be a factor of border_length
+        # Debug used to visualize squares as path finding performs
+        # will be considerably slower to solve however
+        # Need to be declared before hand to prevent if statements throwing errors
+        self.crashed = False
+        self.solved = False
+        self.ready = False
+        self.complete = False
+        self.unsolvable = False
+        pygame.draw.rect(self.gameDisplay, self.Colors["black"], (0, 0, self.border_length, self.border_length), 0)
+    
+    def generate_board(self):
+        self.reset_board()
+        self.random_start()
+        self.random_finish()
+
+    def generate_position(self):
+        y = randint(0, (self.border_length // self.box_dimension) - 1)
+        x = randint(0, (self.border_length // self.box_dimension) - 1)
+        return (y, x)
+
+    def random_start(self):
+        y, x = self.generate_position()
+        self.start_tile_pos = (y, x)
+        self.grid[y][x] = 1
+        self.start_tile = True
+        self.finish_tile = False
+
+    def random_finish(self):
+        while True:
+            y, x = self.generate_position()
+            self.finish_tile_pos = (y, x)
+            if self.finish_tile_pos != self.start_tile_pos:
+                self.grid[y][x] = 2
+                self.finish_tile = True
+                self.wall_tile = False
+                break
 
 Display_window()
